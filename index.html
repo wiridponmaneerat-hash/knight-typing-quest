@@ -1,0 +1,199 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ศึกอัศวินนักพิมพ์</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Charm:wght@400;700&family=Sarabun:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- ฟิลเตอร์สีน้ำ ใช้ร่วมกันทุกภาพ -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <filter id="wc" x="-15%" y="-15%" width="130%" height="130%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.035" numOctaves="3" seed="4" result="warp"/>
+      <feDisplacementMap in="SourceGraphic" in2="warp" scale="6" xChannelSelector="R" yChannelSelector="G" result="wobble"/>
+      <feTurbulence type="fractalNoise" baseFrequency="0.75" numOctaves="2" seed="9" result="grain"/>
+      <feColorMatrix in="grain" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 -0.9 1.2" result="grainA"/>
+      <feComposite in="wobble" in2="grainA" operator="in" result="pigment"/>
+      <feGaussianBlur in="pigment" stdDeviation="0.45"/>
+    </filter>
+    <filter id="wcSoft" x="-5%" y="-5%" width="110%" height="110%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.012" numOctaves="4" seed="2" result="warp"/>
+      <feDisplacementMap in="SourceGraphic" in2="warp" scale="22" xChannelSelector="R" yChannelSelector="G" result="wobble"/>
+      <feGaussianBlur in="wobble" stdDeviation="1.6"/>
+    </filter>
+  </defs>
+</svg>
+
+<main id="app">
+
+  <!-- หน้าแรก -->
+  <section id="screen-start" class="screen active">
+    <header class="hero-head">
+      <div id="crest" class="crest"></div>
+      <h1 class="title">ศึกอัศวินนักพิมพ์</h1>
+      <p class="subtitle">ฝึกพิมพ์ภาษาไทย ปราบอสูรร้าย · ระดับ ป.1 – ป.6</p>
+    </header>
+
+    <div class="start-grid">
+      <form id="start-form" class="parchment" autocomplete="off" novalidate>
+        <h2 class="panel-title">ลงทะเบียนนักผจญภัย</h2>
+        <label class="field">
+          <span>ชื่อของเจ้า</span>
+          <input id="player-name" type="text" maxlength="20" placeholder="พิมพ์ชื่อเล่นของนักเรียน" lang="th">
+        </label>
+        <div class="field">
+          <span>เลือกระดับชั้น</span>
+          <div class="grades" id="grades" role="radiogroup" aria-label="ระดับชั้น"></div>
+        </div>
+        <p class="form-error" id="form-error" role="alert"></p>
+        <button type="submit" class="btn">เข้าสู่ปราสาท ⚔</button>
+      </form>
+
+      <aside class="parchment hall">
+        <h2 class="panel-title">ทำเนียบอัศวิน</h2>
+        <p class="hall-grade" id="hall-grade">ทุกระดับชั้น</p>
+        <ol id="hall-list" class="hall-list"></ol>
+      </aside>
+    </div>
+  </section>
+
+  <!-- เลือกตัวละคร -->
+  <section id="screen-hero" class="screen">
+    <h1 class="title small">เลือกอัศวินของ <span id="hero-player"></span></h1>
+    <p class="subtitle" id="hero-grade-note"></p>
+    <div class="hero-cards">
+      <button class="hero-card parchment" data-gender="boy" type="button">
+        <div class="hero-card-art" data-art="boy"></div>
+        <strong>อัศวินชาย</strong>
+        <span>ผู้กล้าแห่งหุบเขาสีน้ำตาล</span>
+      </button>
+      <button class="hero-card parchment" data-gender="girl" type="button">
+        <div class="hero-card-art" data-art="girl"></div>
+        <strong>อัศวินหญิง</strong>
+        <span>นักดาบผู้ว่องไวแห่งปราสาท</span>
+      </button>
+    </div>
+    <div class="actions">
+      <button class="btn secondary" id="btn-hero-back" type="button">← ย้อนกลับ</button>
+      <button class="btn" id="btn-hero-go" type="button" disabled>ออกผจญภัย ⚔</button>
+    </div>
+  </section>
+
+  <!-- แผนที่ด่าน -->
+  <section id="screen-map" class="screen">
+    <h1 class="title small">แผนที่การผจญภัย</h1>
+    <div class="map-info">
+      <span class="badge" id="map-grade">ป.1</span>
+      <span id="map-name">ผู้กล้า</span>
+      <span class="map-stars">★ <b id="map-stars">0</b>/150</span>
+    </div>
+    <div class="region-tabs" id="region-tabs" role="tablist" aria-label="ด่านหลัก"></div>
+    <div class="map parchment">
+      <h2 class="panel-title" id="region-name">ด่านหลัก</h2>
+      <p class="region-desc" id="region-desc"></p>
+      <div class="map-board">
+        <svg class="map-path" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+          <path d="M10 25 H90 C104 25 104 75 90 75 H10" fill="none" stroke="#8a5a2b" stroke-width="1.2" stroke-dasharray="2.5 2" vector-effect="non-scaling-stroke"/>
+        </svg>
+        <div class="nodes" id="nodes"></div>
+      </div>
+    </div>
+    <div class="actions">
+      <button class="btn secondary" id="btn-map-home" type="button">← หน้าแรก</button>
+      <button class="btn secondary" id="btn-map-hero" type="button">เปลี่ยนตัวละคร</button>
+    </div>
+  </section>
+
+  <!-- การต่อสู้ -->
+  <section id="screen-battle" class="screen">
+    <div class="topbar">
+      <div class="tb-player">
+        <span class="badge" id="tb-grade">ป.1</span>
+        <span id="tb-name">ผู้กล้า</span>
+      </div>
+      <div class="tb-level"><b id="tb-level">1-1</b> <span id="tb-region">ทุ่งหญ้า</span></div>
+      <div class="tb-stats">
+        <span>คะแนน <b id="tb-score">0</b></span>
+        <span class="combo" id="tb-combo">คอมโบ <b>0</b></span>
+      </div>
+      <div class="tb-tools">
+        <button class="icon-btn" id="btn-sound" type="button" title="เปิด/ปิดเสียง">🔊</button>
+        <button class="icon-btn" id="btn-kb" type="button" title="ซ่อน/แสดงแป้นพิมพ์">⌨</button>
+        <button class="icon-btn" id="btn-pause" type="button" title="หยุดพัก (Esc)">❚❚</button>
+      </div>
+    </div>
+
+    <div class="arena" id="arena">
+      <div id="landscape"></div>
+      <div class="hpbox left">
+        <div class="hpname" id="hero-hpname">ผู้กล้า</div>
+        <div class="hpbar"><div class="hpfill hero" id="hero-hp"></div></div>
+        <div class="hptext" id="hero-hptext">100/100</div>
+      </div>
+      <div class="hpbox right">
+        <div class="hpname" id="mon-name">มอนสเตอร์</div>
+        <div class="hpbar"><div class="hpfill" id="mon-hp"></div></div>
+        <div class="hptext" id="mon-hptext">100/100</div>
+      </div>
+      <div class="fighter hero-f"><div class="actor" id="hero-actor"></div></div>
+      <div class="fighter monster-f"><div class="actor" id="mon-actor"></div></div>
+      <div class="fx" id="fx"></div>
+    </div>
+
+    <div class="scroll parchment">
+      <div class="scroll-label">พิมพ์ให้ถูกเพื่อโจมตี!</div>
+      <div class="word" id="word" lang="th"></div>
+      <div class="timer"><div class="timer-fill" id="timer-fill"></div></div>
+    </div>
+
+    <input id="type-input" type="text" lang="th" inputmode="text" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="พิมพ์ที่นี่…" aria-label="ช่องพิมพ์คำ">
+
+    <div class="kb" id="kb">
+      <div class="kb-hint" id="kb-hint"></div>
+      <div id="kb-rows"></div>
+    </div>
+  </section>
+
+  <!-- สรุปผล -->
+  <section id="screen-result" class="screen">
+    <div class="result parchment">
+      <h1 class="title small" id="res-title">ชัยชนะ!</h1>
+      <div class="stars" id="res-stars"></div>
+      <p class="res-msg" id="res-msg"></p>
+      <div class="res-body">
+        <div class="res-art" id="res-art"></div>
+        <dl class="res-stats" id="res-stats"></dl>
+      </div>
+      <div class="actions">
+        <button class="btn" id="btn-next" type="button">ด่านต่อไป ▶</button>
+        <button class="btn secondary" id="btn-again" type="button">เล่นด่านนี้อีกครั้ง</button>
+        <button class="btn secondary" id="btn-map" type="button">กลับแผนที่</button>
+      </div>
+    </div>
+  </section>
+</main>
+
+<div class="overlay" id="pause-overlay" hidden>
+  <div class="parchment pause-box">
+    <h2 class="title small">หยุดพัก</h2>
+    <p>พักหายใจสักครู่ อัศวิน…</p>
+    <div class="actions">
+      <button class="btn" id="btn-resume" type="button">สู้ต่อ</button>
+      <button class="btn secondary" id="btn-quit" type="button">กลับแผนที่</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast" role="status"></div>
+
+<script src="config.js"></script>
+<script src="art.js"></script>
+<script src="game.js"></script>
+</body>
+</html>
